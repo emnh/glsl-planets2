@@ -1,18 +1,6 @@
-# glsl-graph
+# glsl-planets2
 
-WebGL GPGPU Graph Layout, written in ClojureScript.
-
-## Overview
-
- - [Demo](http://emnh.github.io/glsl-graph/)
- - [Supposed to look like this (this is VivaGraph layout, not this project)](http://www.yasiv.com/graphs#HB/blckhole)
-
-The layout is currently flawed compared to VivaGraph or D3, but at least the
-graph layout shows some of the graph structure. I hope someone can help me
-tweak it to make it better.
-
-Layout is currently O(E + N^2) since it does not use a quad tree, but seems
-to work fine up to at least ~2000 nodes and ~6000 edges.
+N-body worms/planets simulation, written in ClojureScript.
 
 ## Setup
 
