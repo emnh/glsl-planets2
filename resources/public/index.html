@@ -112,7 +112,7 @@ void main( void ) {
   vec3 scale = vec3(1.0);
  
   // TODO: optimize it, or adjust parameter to every X frame
-  if (mod(u_iteration, 1.0) == 0.0) {
+  /*if (mod(u_iteration, 1.0) == 0.0) {
     vec3 minimum = planetPos;
     vec3 maximum = planetPos;
     for (float i = 0.0; i < NODECOUNTF; i += 1.0) {
@@ -123,9 +123,10 @@ void main( void ) {
     }
     center = minimum + (maximum - minimum) / 2.0;
     scale = (maximum - minimum) / SCALE;
-  }
+  }*/
 
-  vec3 newPosition = (planetPos - center) / scale;
+  // vec3 newPosition = (planetPos - center) / scale;
+  vec3 newPosition = planetPos;
 
   vec3 planetVelocity = tvel.xyz;
   planetVelocity = planetVelocity * 2.0 - 1.0;
@@ -160,7 +161,7 @@ uniform float u_spring_coefficient;
 #define NODECOUNTF float(NODECOUNT)
 #define EDGECOUNTF float(EDGECOUNT)
 #define ITER 100.0
-#define SCALE 1000.0
+#define SCALE 10.0
 
 vec2 swap(vec2 v) {
   return v.xy;
@@ -279,26 +280,11 @@ vec3 calcGravity(float degree, vec3 planetPos, vec4 tpos, vec3 planet2Pos) {
   float G = u_gravity;
   float F_gravity = G * degree * other_degree / (min_dist + abs(distSquare));
   if (dist >= min_dist) {
-    diff = normalize(diff);
+    //diff = normalize(diff);
   } else {
-    F_gravity = 10000.0;
+    //F_gravity = 10000.0;
   }
   delta += diff * F_gravity * k;
-
-  // center
-  if (
-    planetPos.x > SCALE / 10.0 || 
-    planetPos.x < -SCALE / 10.0 || 
-    planetPos.y > SCALE / 10.0 ||
-    planetPos.y < -SCALE / 10.0
-    ) {
-    vec3 diff2 = vec3(0.5) - planetPos;
-    diff2 = project(diff2);
-    distSquare = length(diff2);
-    distSquare *= distSquare;
-    F_gravity = G / distSquare;
-    // delta += 100.0 * normalize(diff2) * F_gravity;
-  }
 
   return delta;
 }
@@ -317,7 +303,7 @@ void main( void ) {
   float endEdge = startEdge + degree;
   float alpha = max(pow(u_decay, u_iteration), 0.0);
 
-  vec3 delta = vec3(0.0);
+  vec3 gravity = vec3(0.0);
   vec3 spring = vec3(0.0);
 
   float oldEdge = -1.0;
@@ -348,26 +334,29 @@ void main( void ) {
       planetIndex = fourEdges[3];
     }
     planetIndex *= NODECOUNTF;
-    spring += calcSpring(degree, planetPos, planetIndex) / (ITER / degree);
-    //delta -= calcGravity(degree, planetPos, planetIndex);
-  }
-  vec3 gravity = vec3(0.0);
-  for (float i = 0.0; i < NODECOUNTF; i += 1.0) {
-    vec4 tpos = texture2D(u_texture_positions, nodeIndexToPos(i));
+    //spring += calcSpring(degree, planetPos, planetIndex) / (ITER / degree);
+
+    vec4 tpos = texture2D(u_texture_positions, nodeIndexToPos(planetIndex));
     vec3 planet2Pos = scalePos(tpos.xyz);
     gravity += calcGravity(degree, planetPos, tpos, planet2Pos);
   }
+  /*for (float i = 0.0; i < NODECOUNTF; i += 1.0) {
+    vec4 tpos = texture2D(u_texture_positions, nodeIndexToPos(i));
+    vec3 planet2Pos = scalePos(tpos.xyz);
+    //gravity += calcGravity(degree, planetPos, tpos, planet2Pos);
+  }*/
   float clampSize = 1000.0;
   //spring = clamp(spring, vec3(-clampSize), vec3(clampSize));
   //gravity = clamp(gravity, vec3(-clampSize), vec3(clampSize));
-  delta = spring + gravity;
+  vec3 delta = spring + gravity;
   delta /= u_speed_reduction;
   //11220.0; //pow(SCALE, 1.35);
   //delta /= pow(SCALE, 2.0);
   //delta = clamp(delta, vec3(-clampSize), vec3(clampSize));
   //planetVelocity = clamp(planetVelocity, vec3(-clampSize), vec3(clampSize));
   
-  planetVelocity = (planetVelocity * 0.9 + delta * alpha);
+  //planetVelocity = planetVelocity * 0.9 + delta * alpha;
+  planetVelocity = planetVelocity * 0.999 + delta;
   planetVelocity = (planetVelocity + 1.0) / 2.0;
   
 

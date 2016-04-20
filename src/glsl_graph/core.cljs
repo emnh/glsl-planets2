@@ -106,7 +106,7 @@
                 (.onChange (fn [value]
                              (swap! render-options-atom #(assoc % :spin (/ value spin_factor))))))
               (-> dat-gui 
-                (.add config "u_gravity" -1000000.0 0.0)
+                (.add config "u_gravity" 0.0 1000000.0)
                 (.onChange (fn [value]
                              (aset uniforms "u_gravity" "value" (/ value u_gravity_factor)))))
               (-> dat-gui
@@ -573,7 +573,7 @@
                         :u_min_dist
                         {
                          :type "f"
-                         :value 0.1
+                         :value 1.0
                          }
                         :u_spring_coefficient
                         {
@@ -588,7 +588,7 @@
                         :u_gravity
                         {
                          :type "f"
-                         :value -1.0
+                         :value 0.01
                          }
                         :u_decay
                         {
@@ -676,7 +676,7 @@
      screen-scene (new THREE.Scene)
      screen-camera (new THREE.PerspectiveCamera 
                         75 (/ window.innerWidth window.innerHeight) 0.1 1000)
-     _ (set! screen-camera.position.z 1.2)
+     _ (set! screen-camera.position.z 5.0)
      ;controls (new js/OrbitControls screen-camera (-> renderer .-domElement))
      controls (new js/OrbitControls screen-camera)
 
@@ -810,7 +810,7 @@
            (-> a_displacement_index (.setXY (+ j 2) xf2 yf2))
            ))
      lines (new THREE.Line lines-geometry lines-material)
-     _ (-> screen-scene (.add lines))
+     ;_ (-> screen-scene (.add lines))
 
      ; RENDER TARGETS
      rt (new THREE.WebGLRenderTarget
@@ -861,7 +861,7 @@
        :screen-scene screen-scene
        :screen-camera screen-camera
        :screen-uniforms screen-uniforms
-       :spin 0.01
+       :spin 0.00
        :c c
        }
      ]
